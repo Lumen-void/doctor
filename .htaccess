@@ -1,0 +1,22 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Preserve Authorization header for PHP auth middleware.
+  RewriteCond %{HTTP:Authorization} .
+  RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+  # API entrypoint (supports root and subdirectory installs)
+  RewriteRule ^api/(.*)$ api/index.php [L,QSA]
+
+  # Serve UI assets at root for index references
+  RewriteRule ^app\.js$ public/app.js [L]
+  RewriteRule ^styles\.css$ public/styles.css [L]
+
+  # Serve existing files/directories as-is (includes other files)
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # SPA fallback
+  RewriteRule ^.*$ index.php [L]
+</IfModule>
